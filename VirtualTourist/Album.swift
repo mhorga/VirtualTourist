@@ -12,7 +12,20 @@ class Album: NSManagedObject {
 
     @NSManaged var created: NSDate
     @NSManaged var name: String
-    @NSManaged var location: Pin
-    @NSManaged var photos: NSSet
-
+    
+    struct Keys {
+        static let created = "created"
+        static let name = "name"
+    }
+    
+    override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+    }
+    
+    init(dictionary: [String:AnyObject], context: NSManagedObjectContext) {
+        let entity =  NSEntityDescription.entityForName("Album", inManagedObjectContext: context)!
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
+        created = dictionary[Keys.created] as! NSDate
+        name = dictionary[Keys.name] as! String
+    }
 }
