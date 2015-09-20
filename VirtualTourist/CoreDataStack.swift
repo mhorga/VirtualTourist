@@ -17,51 +17,47 @@ class CoreDataStack: NSObject {
         return Static.singleton
     }
     
-    lazy var applicationDocumentsDirectory: NSURL = {
-        let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
-    }()
+    lazy var managedObjectContext: NSManagedObjectContext = {
+        let context = NSManagedObjectContext()
+        context.persistentStoreCoordinator = self.persistentStoreCoordinator
+        return context
+        }()
     
-    lazy var managedObjectModel: NSManagedObjectModel = {
-        let modelURL = NSBundle.mainBundle().URLForResource("VirtualTourist", withExtension: "momd")!
-        return NSManagedObjectModel(contentsOfURL: modelURL)!
-    }()
-    
-    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
-        var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
+    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("VirtualTourist.sqlite")
-        var error: NSError? = nil
-        var failureReason = "There was an error creating or loading the application's saved data."
-        if coordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
-            coordinator = nil
-            var dict = [String: AnyObject]()
-            dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data"
-            dict[NSLocalizedFailureReasonErrorKey] = failureReason
-            dict[NSUnderlyingErrorKey] = error
-            error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
-            NSLog("Unresolved error \(error), \(error!.userInfo)")
+        let store = try? coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: nil)
+        if store == nil {
             abort()
         }
         return coordinator
-    }()
+        }()
     
-    lazy var managedObjectContext: NSManagedObjectContext? = {
-        let coordinator = self.persistentStoreCoordinator
-        if coordinator == nil {
-            return nil
-        }
-        var managedObjectContext = NSManagedObjectContext()
-        managedObjectContext.persistentStoreCoordinator = coordinator
-        return managedObjectContext
-    }()
+    lazy var managedObjectModel: NSManagedObjectModel = {
+        let url = NSBundle.mainBundle().URLForResource("Model", withExtension: "momd")!
+        let model = NSManagedObjectModel(contentsOfURL: url)!
+        return model
+        }()
     
-    func saveContext () {
-        if let moc = self.managedObjectContext {
-            var error: NSError? = nil
-            if moc.hasChanges && !moc.save(&error) {
-                NSLog("Unresolved error \(error), \(error!.userInfo)")
-                abort()
-            }
+    lazy var applicationDocumentsDirectory: NSURL = {
+        let fileManager = NSFileManager.defaultManager()
+        return fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
+        }()
+    
+    func saveContext() {
+        if managedObjectContext.hasChanges {
+            // if managedObjectContext.save()
+            abort()
         }
     }
+//    
+//    func saveContext () {
+//        if let moc = self.managedObjectContext {
+//            var error: NSError? = nil
+//            if moc.hasChanges && !moc.save(&error) {
+//                NSLog("Unresolved error \(error), \(error!.userInfo)")
+//                abort()
+//            }
+//        }
+//    }
 }

@@ -8,6 +8,7 @@
 
 import CoreData
 
+@objc(Album)
 class Album: NSManagedObject {
 
     @NSManaged var created: NSDate

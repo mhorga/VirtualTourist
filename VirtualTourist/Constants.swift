@@ -8,14 +8,13 @@
 
 class Constants {
     
-        static let apiKey = "YOUR_API_KEY"
-        static let baseURL = "https://api.flickr.com/services/rest/"
-        static let urlExtra = "url_m"
-        static let jsonFormat = "json"
-        static let searchPhotos = "flickr.photos.search"
-        static let nojsoncallback = "1"
-        static let radius = "10"
-        static let maxReturnedPhotos = 100
-        static let perPage = 10
+    static let apiKey = "c32f8da39c261a42e12e77299d4179db"
+    static let baseURL = "https://api.flickr.com/services/rest/"
+    static let urlExtra = "url_m"
+    static let jsonFormat = "json"
+    static let searchPhotos = "flickr.photos.search"
+    static let nojsoncallback = "1"
+    static let radius = "10"
+    static let maxReturnedPhotos = 100
+    static let perPage = 100
 }
-

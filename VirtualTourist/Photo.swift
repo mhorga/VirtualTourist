@@ -1,21 +1,21 @@
 //
 //  Photo.swift
-//  
+//  VirtualTourist
 //
-//  Created by Marius Horga on 9/18/15.
-//
+//  Created by Marius Horga on 9/16/15.
+//  Copyright (c) 2015 Marius Horga. All rights reserved.
 //
 
-import Foundation
 import CoreData
 
+@objc(Photo)
 class Photo: NSManagedObject {
-
-    @NSManaged var url: String
-    @NSManaged var pin: Pin
-
+    
+    @NSManaged var imagePath: String
+    @NSManaged var pin: Pin?
+    
     struct Keys {
-        static let url = "url"
+        static let imagePath = "imagePath"
         static let pin = "pin"
     }
     
@@ -23,17 +23,11 @@ class Photo: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
-    init(dictionary: [String: AnyObject], context: NSManagedObjectContext) {
+    init(dictionary: [String:AnyObject], context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Photo", inManagedObjectContext: context)!
         super.init(entity: entity, insertIntoManagedObjectContext: context)
-        url = dictionary[Keys.url] as! String
-        pin = dictionary[Keys.pin] as! Pin
-        context.save(nil)
-    }
-    
-    override func prepareForDeletion() {
-        let docPath = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first as! String
-        let fullPath = docPath + url
-        NSFileManager.defaultManager().removeItemAtPath(fullPath, error: nil)
+        imagePath = dictionary[Keys.imagePath] as! String
+        pin = dictionary[Keys.pin] as? Pin
+        try! context.save()
     }
 }

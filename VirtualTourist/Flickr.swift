@@ -6,13 +6,12 @@
 //  Copyright (c) 2015 Marius Horga. All rights reserved.
 //
 
-import MapKit
 import CoreData
 
 class Flickr: NSObject {
- 
+    
     private var sharedContext: NSManagedObjectContext {
-        return CoreDataStack.sharedInstance().managedObjectContext!
+        return CoreDataStack.sharedInstance().managedObjectContext
     }
     static let sharedInstance = Flickr()
     
@@ -26,7 +25,7 @@ class Flickr: NSObject {
             if let error = error {
                 completionHandler(success: false, error: error)
             } else {
-                let data = NSData(contentsOfURL: url)!
+                let data = NSData(contentsOfURL: url!)!
                 data.writeToFile(path, atomically: true)
                 completionHandler(success: true, error: nil)
             }
@@ -34,22 +33,22 @@ class Flickr: NSObject {
         task.resume()
     }
     
-    func startTaskForURL(annotation: Annotation, completionHandler: (urls: [NSURL]?, error: NSError?) -> Void) -> NSURLSessionTask {
-        let dictionary = [
+    func startTaskForURL(pinAnnotation: Annotation, completionHandler: (urls: [NSURL]?, error: NSError?) -> Void) -> NSURLSessionTask {
+        let params = [
             "method" : Constants.searchPhotos,
             "api_key" : Constants.apiKey,
             "extras" : Constants.urlExtra,
             "format" : Constants.jsonFormat,
-            "nojsoncallback" : Constants.nojsoncallback,
-            "lat" : annotation.pin!.latitude.description,
-            "lon" : annotation.pin!.longitude.description,
-            "radius" : Constants.radius,
+            "nojsoncallback" : "1",
+            "lat" : pinAnnotation.coordinate.latitude.description,
+            "lon" : pinAnnotation.coordinate.longitude.description,
+            "radius" : "5",
             "per_page" : Constants.perPage.description
         ]
-        return taskForURL(dictionary, completionHandler: completionHandler)
+        return taskForURL(params, completionHandler: completionHandler)
     }
     
-    func taskForURL(parameters: [String: String], completionHandler: (urls: [NSURL]?, error: NSError?) -> Void) -> NSURLSessionTask {
+    func taskForURL( parameters: [String:String], completionHandler: (urls: [NSURL]?, error: NSError?) -> Void) -> NSURLSessionTask {
         let urlString = Constants.baseURL + "?" + escapedParameters(parameters)
         let url = NSURL(string: urlString)!
         let request = NSURLRequest(URL: url)
@@ -58,11 +57,11 @@ class Flickr: NSObject {
             if let error = error {
                 completionHandler(urls: nil, error: error)
             } else {
-                var jsonError: NSError? = nil
-                let json = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &jsonError) as! NSDictionary
+                let jsonError: NSError? = nil
+                let json = (try! NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments)) as! NSDictionary
                 if let results = json["photos"] as? [String:AnyObject],
                     let photos = results["photo"] as? [[String:AnyObject]] {
-                        let urls = map(photos) { (photo: [String:AnyObject]) -> NSURL in
+                        let urls = photos.map { (photo: [String:AnyObject]) -> NSURL in
                             let urlString = photo[Constants.urlExtra] as! String
                             return NSURL(string: urlString)!
                         }
@@ -76,12 +75,12 @@ class Flickr: NSObject {
         return task
     }
     
-    func escapedParameters(dictionary: [String: String]) -> String {
-        let queryItems = map(dictionary) {
+    func escapedParameters(dictionary: [String:String]) -> String {
+        let queryItems = dictionary.map {
             NSURLQueryItem(name: $0, value: $1)
         }
-        let components = NSURLComponents()
-        components.queryItems = queryItems
-        return components.percentEncodedQuery ?? ""
+        let comps = NSURLComponents()
+        comps.queryItems = queryItems
+        return comps.percentEncodedQuery ?? ""
     }
 }
