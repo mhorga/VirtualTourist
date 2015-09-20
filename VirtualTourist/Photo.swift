@@ -30,4 +30,10 @@ class Photo: NSManagedObject {
         pin = dictionary[Keys.pin] as? Pin
         try! context.save()
     }
+    
+    override func prepareForDeletion() {
+        let docPath = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first
+        let fullPath = docPath! + imagePath
+        try! NSFileManager.defaultManager().removeItemAtPath(fullPath)
+    }
 }

@@ -61,7 +61,10 @@ class Flickr: NSObject {
                 let json = (try! NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments)) as! NSDictionary
                 if let results = json["photos"] as? [String:AnyObject],
                     let photos = results["photo"] as? [[String:AnyObject]] {
-                        let urls = photos.map { (photo: [String:AnyObject]) -> NSURL in
+                        var temp = photos
+                        self.randomize(&temp)
+                        temp = Array(temp[0...23])
+                        let urls = temp.map { (photo: [String:AnyObject]) -> NSURL in
                             let urlString = photo[Constants.urlExtra] as! String
                             return NSURL(string: urlString)!
                         }
@@ -73,6 +76,17 @@ class Flickr: NSObject {
         }
         task.resume()
         return task
+    }
+    
+    func randomize(inout array: [[String : AnyObject]]) {
+        if array.count > 1 {
+            for i in 0...array.count {
+                let j = Int(arc4random_uniform(UInt32(array.count - i))) + i
+                if i != j {
+                    swap(&array[i], &array[j])
+                }
+            }
+        }
     }
     
     func escapedParameters(dictionary: [String:String]) -> String {
