@@ -8,7 +8,7 @@
 
 class Constants {
     
-    static let apiKey = "c32f8da39c261a42e12e77299d4179db"
+    static let apiKey = "YOUR_API_KEY"
     static let baseURL = "https://api.flickr.com/services/rest/"
     static let urlExtra = "url_m"
     static let jsonFormat = "json"
