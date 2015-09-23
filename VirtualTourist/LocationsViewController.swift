@@ -59,6 +59,8 @@ class LocationsViewController: UIViewController, MKMapViewDelegate {
             annotation = addPinAnnotationAtPoint(point)
         case .Changed:
             annotation!.coordinate = mapView.convertPoint(point, toCoordinateFromView: mapView)
+            let photosVC = PhotosViewController()
+            photosVC.getPhotos(annotation!)
         case .Cancelled:
             mapView.removeAnnotation(annotation!)
             annotation = nil
